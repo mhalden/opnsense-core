@@ -96,7 +96,7 @@ class UriParser(BaseContentParser):
             if req.status_code == 200:
                 # only handle content if response is correct
                 req.raw.decode_content = True
-                lines = req.raw.read().decode().splitlines()
+                lines = req.raw.read().decode(errors='replace').splitlines()
                 syslog.syslog(syslog.LOG_NOTICE, 'fetch alias url %s (lines: %s)' % (url, len(lines)))
                 for line in lines:
                     for raw_address in self._parse_line(line):
