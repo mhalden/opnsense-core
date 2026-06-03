@@ -63,6 +63,16 @@ class Menu extends MenuContainer
         $iftargets = array_merge(['FloatingRules' => gettext('Floating')], $iftargets);
         $ordid = 1;
         foreach ($iftargets as $key => $descr) {
+            if ($has_mvc_fw && !$has_legacy_fw) {
+                /* only search */
+                $this->appendItem('Firewall.Rule', $key, [
+                    'url' => '/ui/firewall/filter/#interface=' . $key,
+                    'fixedname' => $descr,
+                    'order' => $order++,
+                ]);
+                continue;
+            }
+            /* legacy rules */
             $this->appendItem('Firewall.Rules', $key, [
                 'url' => '/firewall_rules.php?if=' . $key,
                 'fixedname' => $descr,
