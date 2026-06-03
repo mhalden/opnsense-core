@@ -48,14 +48,28 @@ class Menu extends MenuContainer
         natcasesort($iftargets);
 
         // add interfaces to "Firewall: Rules" menu tab...
-        $this->appendItem('Firewall.Rules', 'Migration', [
-                'url' => '/ui/firewall/migration',
-                'fixedname' => sprintf("<i class='fa fa-fw fa-gears'> </i> %s", gettext('Migration assistant')),
-                'order' => 0,
-        ]);
-        $iftargets = array_merge(['FloatingRules' => gettext('Floating')], $iftargets);
+        $has_legacy_fw = !empty($config->filter?->rule?->count());
+        $has_mvc_fw = !empty($config->OPNsense?->Firewall?->Filter?->rules?->count());
+        if ($has_legacy_fw) {
+            $this->appendItem('Firewall.Rules', 'Migration', [
+                    'url' => '/ui/firewall/migration',
+                    'fixedname' => sprintf("<i class='fa fa-fw fa-gears'> </i> %s", gettext('Migration assistant')),
+                    'order' => 0,
+            ]);
+            $iftargets = array_merge(['FloatingRules' => gettext('Floating')], $iftargets);
+        }
         $ordid = 1;
         foreach ($iftargets as $key => $descr) {
+            if ($has_mvc_fw && !$has_legacy_fw) {
+                /* only search */
+                $this->appendItem('Firewall.Rule', $key, [
+                    'url' => '/ui/firewall/filter/#interface=' . $key,
+                    'fixedname' => $descr,
+                    'order' => $order++,
+                ]);
+                continue;
+            }
+            /* legacy rules */
             $this->appendItem('Firewall.Rules', $key, [
                 'url' => '/firewall_rules.php?if=' . $key,
                 'fixedname' => $descr,
